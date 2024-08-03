@@ -1,0 +1,41 @@
+int inPin = A0;         // the the switch has to be connected to both GND and VCC with a tritrerminal switch
+int outPin = 12;       // the number of the output pin
+
+int state = HIGH;      // the current state of the output pin
+int reading;           // the current reading from the input pin
+int previous = LOW;    // the previous reading from the input pin
+
+// the following variables are long because the time, measured in milliseconds,
+// will quickly become a bigger number than can be stored in an int.
+unsigned long time = 0;           // the last time the output pin was toggled
+unsigned long debounce = 200UL;   // the debounce time, increase if the output flickers
+
+void setup() {
+  pinMode(inPin, INPUT);   // Initialize the input pin as an input
+  pinMode(outPin, OUTPUT); // Initialize the output pin as an output
+  
+digitalWrite(outPin,LOW);
+}
+
+void loop() {
+  reading = digitalRead(inPin); // Read the state of the button
+
+  // If the input just went from LOW to HIGH and we've waited long enough
+  // to ignore any noise on the circuit, toggle the output pin and remember the time
+  if (reading == HIGH && previous == LOW && millis() - time > debounce) {
+    // Toggle the state
+    if (state == HIGH)
+      state = LOW;
+    else
+      state = HIGH;
+
+    // Update the time when the state was toggled
+    time = millis();
+  }
+
+  // Set the output pin to the current state
+  digitalWrite(outPin, state);
+
+  // Update the previous reading to the current reading
+  previous = reading;
+}
